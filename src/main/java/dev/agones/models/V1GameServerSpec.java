@@ -13,19 +13,17 @@
 
 package dev.agones.models;
 
-import java.util.Objects;
-import java.util.Arrays;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
 import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
-import dev.agones.models.HealthCheckingForTheRunningGameServer;
-import dev.agones.models.ParametersForTheSDKServerSidecar;
-import dev.agones.models.V1GameServerSpecTemplate;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * GameServerSpec is the spec for a GameServer resource. More info: https://agones.dev/site/docs/reference/agones_crd_api_reference/#agones.dev/v1.GameServer
@@ -47,7 +45,7 @@ public class V1GameServerSpec {
 
   public static final String SERIALIZED_NAME_PORTS = "ports";
   @SerializedName(SERIALIZED_NAME_PORTS)
-  private Object ports;
+  private ArrayList<V1GameServerSpecTemplateSpecPorts> ports;
 
   /**
    * Gets or Sets scheduling
@@ -178,7 +176,7 @@ public class V1GameServerSpec {
   }
 
 
-  public V1GameServerSpec ports(Object ports) {
+  public V1GameServerSpec ports(ArrayList<V1GameServerSpecTemplateSpecPorts> ports) {
     
     this.ports = ports;
     return this;
@@ -191,12 +189,12 @@ public class V1GameServerSpec {
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public Object getPorts() {
+  public ArrayList<V1GameServerSpecTemplateSpecPorts> getPorts() {
     return ports;
   }
 
 
-  public void setPorts(Object ports) {
+  public void setPorts(ArrayList<V1GameServerSpecTemplateSpecPorts> ports) {
     this.ports = ports;
   }
 

@@ -13,8 +13,6 @@
 
 package dev.agones.models;
 
-import java.util.Objects;
-import java.util.Arrays;
 import com.google.gson.TypeAdapter;
 import com.google.gson.annotations.JsonAdapter;
 import com.google.gson.annotations.SerializedName;
@@ -22,7 +20,10 @@ import com.google.gson.stream.JsonReader;
 import com.google.gson.stream.JsonWriter;
 import io.swagger.annotations.ApiModel;
 import io.swagger.annotations.ApiModelProperty;
+
 import java.io.IOException;
+import java.util.ArrayList;
+import java.util.Objects;
 
 /**
  * GameServerStatus is the status for a GameServer resource. More info: https://agones.dev/site/docs/reference/agones_crd_api_reference/#agones.dev/v1.GameServer
@@ -44,7 +45,7 @@ public class TheStatusValuesForTheGameServer {
 
   public static final String SERIALIZED_NAME_PORTS = "ports";
   @SerializedName(SERIALIZED_NAME_PORTS)
-  private Object ports;
+  private ArrayList<V1GameServerSpecTemplateSpecPorts> ports;
 
   public static final String SERIALIZED_NAME_RESERVED_UNTIL = "reservedUntil";
   @SerializedName(SERIALIZED_NAME_RESERVED_UNTIL)
@@ -189,7 +190,7 @@ public class TheStatusValuesForTheGameServer {
   }
 
 
-  public TheStatusValuesForTheGameServer ports(Object ports) {
+  public TheStatusValuesForTheGameServer ports(ArrayList<V1GameServerSpecTemplateSpecPorts> ports) {
     
     this.ports = ports;
     return this;
@@ -202,12 +203,12 @@ public class TheStatusValuesForTheGameServer {
   @javax.annotation.Nullable
   @ApiModelProperty(value = "")
 
-  public Object getPorts() {
+  public ArrayList<V1GameServerSpecTemplateSpecPorts> getPorts() {
     return ports;
   }
 
 
-  public void setPorts(Object ports) {
+  public void setPorts(ArrayList<V1GameServerSpecTemplateSpecPorts> ports) {
     this.ports = ports;
   }
 
