@@ -17,9 +17,12 @@ import io.kubernetes.client.openapi.Configuration;
 import io.kubernetes.client.openapi.apis.CustomObjectsApi;
 import io.kubernetes.client.util.Config;
 import io.kubernetes.client.util.Watch;
+import redis.clients.jedis.JedisPooled;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.UnknownHostException;
 import java.util.ArrayList;
 import java.util.Optional;
 import java.util.logging.Logger;
@@ -28,17 +31,24 @@ import java.util.logging.Logger;
 public class ProxySyncer {
     private final ProxyServer server;
     private final Logger logger;
+    private final JedisPooled jedis;
 
     @Inject
-    public ProxySyncer(ProxyServer server, Logger logger) {
+    public ProxySyncer(ProxyServer server, Logger logger) throws UnknownHostException {
         this.server = server;
         this.logger = logger;
+        InetAddress inetHost = InetAddress.getByName("redis");
+        this.jedis = new JedisPooled(inetHost.getHostAddress(), 6379);
 
-        logger.info("Hello there! I made my first plugin with Velocity.");
+        logger.info("ProxySyncer running");
     }
 
     @Subscribe
     public void onProxyInitialization(ProxyInitializeEvent event) {
+        server.getScheduler().buildTask(this, () -> {
+            jedis.subscribe(new PlayerTransferListener(server, logger), "player_transfers");
+        }).schedule();
+
         server.getScheduler()
                 .buildTask(this, () -> {
                     try {
@@ -73,6 +83,8 @@ public class ProxySyncer {
                                 continue;
                             }
 
+                            System.out.println("STATUS RECEIVED:" + status);
+
                             if (!status.getState().equals(TheStatusValuesForTheGameServer.StateEnum.READY) && !status.getState().equals(TheStatusValuesForTheGameServer.StateEnum.SHUTDOWN)) {
                                 continue;
                             }
@@ -81,7 +93,7 @@ public class ProxySyncer {
                             Optional<V1GameServerSpecTemplateSpecPorts> gamePort = ports.stream().filter(p -> p.getName().equals("game")).findFirst();
                             if (gamePort.isEmpty()) {
                                 logger.warning("Tried to register gameserver without game port");
-                                return;
+                                continue;
                             }
 
                             int port = gamePort.get().getHostPort();
@@ -91,11 +103,13 @@ public class ProxySyncer {
                                 continue;
                             }
 
-                            if(status.getState().equals(TheStatusValuesForTheGameServer.StateEnum.SHUTDOWN)) {
+                            // FIXME: When something get deleted, it goes further than this for some reasons
+                            if (status.getState().equals(TheStatusValuesForTheGameServer.StateEnum.SHUTDOWN)) {
                                 Optional<RegisteredServer> removedServer = server.getServer(item.object.getMetadata().getName());
-                                if(removedServer.isEmpty()){
+                                if (removedServer.isEmpty()) {
                                     continue;
                                 }
+                                System.out.println("Removing server " + item.object.getMetadata().getName());
                                 server.unregisterServer(removedServer.get().getServerInfo());
                                 continue;
                             }
